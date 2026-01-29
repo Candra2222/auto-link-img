@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera Viewfinder → ImgBB Link</title>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        .warning-box {
+            background: rgba(231, 76, 60, 0.2);
+            border: 2px solid #e74c3c;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+        }
+        .warning-box strong { color: #e74c3c; }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 968px) { .main-grid { grid-template-columns: 1fr; } }
+
+        .controls {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 25px;
+            height: fit-content;
+        }
+
+        .control-group { margin-bottom: 15px; }
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.85em;
+            color: #aed6f1;
+            font-weight: 600;
+        }
+
+        input[type="text"], input[type="file"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(0,0,0,0.2);
+            color: #fff;
+            border-radius: 6px;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-top: 10px;
+            font-size: 0.9em;
+            text-transform: uppercase;
+        }
+        .btn-primary { background: #3498db; color: white; }
+        .btn-success { background: #2ecc71; color: #000; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .camera-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            overflow: hidden;
+            background: #000;
+            border-radius: 4px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .camera-bg, .camera-main { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+        .camera-bg { filter: blur(8px) brightness(0.7); transform: scale(1.1); }
+        .camera-main { top: 50%; left: 50%; transform: translate(-50%, -50%); max-width: 60%; max-height: 70%; z-index: 2; }
+
+        .ui-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 10; pointer-events: none;
+            font-family: 'Share Tech Mono', monospace; color: rgba(255,255,255,0.9);
+            text-shadow: 0 0 5px rgba(0,0,0,0.8);
+        }
+        .corner { position: absolute; width: 40px; height: 40px; border: 2px solid rgba(255,255,255,0.8); }
+        .corner-tl { top: 20px; left: 20px; border-right: none; border-bottom: none; }
+        .corner-tr { top: 20px; right: 20px; border-left: none; border-bottom: none; }
+        .corner-bl { bottom: 20px; left: 20px; border-right: none; border-top: none; }
+        .corner-br { bottom: 20px; right: 20px; border-left: none; border-top: none; }
+        
+        .focus-frame { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; border: 2px solid rgba(255,255,255,0.6); }
+        .focus-frame::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 4px; height: 4px; background: rgba(255,255,255,0.8); border-radius: 50%; }
+
+        .top-bar { position: absolute; top: 30px; left: 40px; right: 40px; display: flex; justify-content: space-between; align-items: center; }
+        .rec-indicator { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: bold; letter-spacing: 2px; }
+        .rec-dot { width: 12px; height: 12px; background: #ff0000; border-radius: 50%; animation: blink 1s infinite; box-shadow: 0 0 10px #ff0000; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .live-badge { background: #ff0000; color: white; padding: 2px 6px; font-size: 10px; border-radius: 2px; margin-bottom: 5px; display: inline-block; }
+        .timer { font-size: 18px; letter-spacing: 3px; margin-top: 5px; }
+        
+        .battery { display: flex; align-items: center; gap: 5px; }
+        .battery-icon { width: 40px; height: 20px; border: 2px solid rgba(255,255,255,0.8); border-radius: 3px; position: relative; padding: 2px; }
+        .battery-icon::after { content: ''; position: absolute; right: -6px; top: 50%; transform: translateY(-50%); width: 4px; height: 10px; background: rgba(255,255,255,0.8); border-radius: 0 2px 2px 0; }
+        .battery-level { height: 100%; background: rgba(255,255,255,0.9); transition: width 0.3s; }
+
+        .audio-meter { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 200px; height: 20px; display: flex; align-items: center; justify-content: center; gap: 3px; }
+        .meter-line { width: 2px; height: 8px; background: rgba(255,255,255,0.3); }
+        .meter-line.active { background: rgba(255,255,255,0.9); height: 14px; }
+
+        .bottom-bar { position: absolute; bottom: 30px; left: 40px; right: 40px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .menu-text { font-size: 14px; letter-spacing: 2px; display: flex; align-items: center; gap: 8px; }
+        .menu-icon { display: flex; flex-direction: column; gap: 4px; }
+        .menu-line { width: 20px; height: 2px; background: rgba(255,255,255,0.8); }
+        .camera-settings { text-align: right; font-size: 14px; line-height: 1.4; }
+
+        .result-box {
+            margin-top: 20px; padding: 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            border: 1px solid #2ecc71;
+            display: none;
+        }
+        .result-box.show { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .link-display {
+            background: rgba(0,0,0,0.5);
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-family: 'Share Tech Mono', monospace;
+            word-break: break-all;
+            border: 1px solid #3498db;
+            color: #85c1e9;
+            font-size: 0.9em;
+        }
+
+        .loading {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center; align-items: center; flex-direction: column;
+            z-index: 1000;
+        }
+        .spinner { width: 50px; height: 50px; border: 3px solid rgba(255,255,255,0.3); border-top-color: #2ecc71; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .status { margin-top: 10px; padding: 10px; border-radius: 6px; font-size: 0.85em; display: none; }
+        .status.error { background: rgba(231, 76, 60, 0.3); border: 1px solid #e74c3c; display: block; }
+        .status.success { background: rgba(46, 204, 113, 0.3); border: 1px solid #2ecc71; display: block; }
+
+        .copy-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85em;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p style="margin-top: 20px; color: #2ecc71;">Mengupload ke ImgBB...</p>
+</div>
+
+<div class="container">
+    <div class="warning-box">
+        <strong>⚠️ INFO PENTING:</strong><br>
+        Uploade <strong>IMAGE PREVIEW</strong> Script by SESEPUH 2026
+    </div>
+
+    <div class="main-grid">
+        <!-- Panel Kiri -->
+        <div class="controls">
+            <h2 style="margin-bottom: 20px; color: #85c1e9;">⚙️ Setting</h2>
+            
+            <div class="control-group">
+                <label>📁 Upload Gambar</label>
+                <input type="file" id="imageInput" accept="image/*">
+            </div>
+
+            <div class="control-group">
+                <label>⏱️ Timer</label>
+                <input type="text" id="timerText" value="00:00:10">
+            </div>
+
+            <div class="control-group">
+                <label>📸 Camera Settings</label>
+                <input type="text" id="cameraSettings" value="F3.5 ISO100">
+            </div>
+
+            <div class="control-group">
+                <label>🔋 Battery (%)</label>
+                <input type="number" id="batteryLevel" value="70" min="0" max="100">
+            </div>
+
+            <button class="btn btn-primary" onclick="updatePreview()">🔄 Update Preview</button>
+            <button class="btn btn-success" onclick="uploadToImgBB()" id="uploadBtn" style="margin-top: 8px;">
+                ☁️ Upload & Dapatkan Link
+            </button>
+
+            <div id="statusMsg" class="status"></div>
+        </div>
+
+        <!-- Panel Kanan -->
+        <div>
+            <div class="camera-container" id="cameraContainer">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='450'%3E%3Crect width='800' height='450' fill='%23222'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23444' font-size='20'%3EUpload Gambar%3C/text%3E%3C/svg%3E" class="camera-bg" id="bgImage">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect width='400' height='300' fill='%23333'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23555' font-size='16'%3EPreview%3C/text%3E%3C/svg%3E" class="camera-main" id="mainImage">
+                
+                <div class="ui-overlay">
+                    <div class="corner corner-tl"></div>
+                    <div class="corner corner-tr"></div>
+                    <div class="corner corner-bl"></div>
+                    <div class="corner corner-br"></div>
+                    <div class="focus-frame"></div>
+                    
+                    <div class="top-bar">
+                        <div class="rec-indicator">
+                            <div class="rec-dot"></div>
+                            <span>REC</span>
+                        </div>
+                        <div style="text-align: center;">
+                            <div class="live-badge">LIVE</div>
+                            <div class="timer" id="displayTimer">00:00:10</div>
+                        </div>
+                        <div class="battery">
+                            <div class="battery-icon">
+                                <div class="battery-level" id="batteryFill" style="width: 70%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="audio-meter" id="audioMeter"></div>
+                    
+                    <div class="bottom-bar">
+                        <div class="menu-text">
+                            <div class="menu-icon">
+                                <div class="menu-line"></div>
+                                <div class="menu-line"></div>
+                                <div class="menu-line"></div>
+                            </div>
+                            <span>MENU</span>
+                        </div>
+                        <div class="camera-settings" id="displaySettings">F3.5<br>ISO100</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hasil Link -->
+            <div class="result-box" id="resultBox">
+                <h3 style="color: #2ecc71; margin-bottom: 10px;">✅ Link Gambar Siap:</h3>
+                <div class="link-display" id="imageLink">https://i.ibb.co/xxxxx/xxxx.jpg</div>
+                <button class="copy-btn" onclick="copyLink()">📋 Copy Link</button>
+                <p style="font-size: 0.8em; margin-top: 10px; opacity: 0.8;">
+                    Link di atas bisa langsung dipakai sebagai src di HTML img tag.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ==========================================
+    // GANTI INI DENGAN API KEY KAMU SENDIRI
+    // Ambil gratis di: https://api.imgbb.com/
+    // ==========================================
+    const IMGBB_API_KEY = '1a4a551123d01e8cce17fba7095ce35a'; 
+
+    // Audio meter animation
+    const meter = document.getElementById('audioMeter');
+    for(let i = 0; i < 20; i++) {
+        const line = document.createElement('div');
+        line.className = 'meter-line' + (i >= 8 && i <= 12 ? ' active' : '');
+        meter.appendChild(line);
+    }
+
+    let currentImageSrc = '';
+
+    document.getElementById('imageInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if(file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                currentImageSrc = event.target.result;
+                document.getElementById('mainImage').src = currentImageSrc;
+                document.getElementById('bgImage').src = currentImageSrc;
+                showStatus('✅ Gambar siap!', 'success');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    function updatePreview() {
+        const timer = document.getElementById('timerText').value;
+        const settings = document.getElementById('cameraSettings').value;
+        const battery = document.getElementById('batteryLevel').value;
+        
+        document.getElementById('displayTimer').textContent = timer;
+        document.getElementById('batteryFill').style.width = battery + '%';
+        document.getElementById('displaySettings').innerHTML = settings.replace('ISO', '<br>ISO');
+    }
+
+    async function uploadToImgBB() {
+        // Cek API Key
+        if(IMGBB_API_KEY === 'PASTE_YOUR_API_KEY_HERE' || !IMGBB_API_KEY) {
+            showStatus('❌ Ganti IMGBB_API_KEY di code terlebih dahulu!', 'error');
+            return;
+        }
+
+        if(!currentImageSrc) {
+            showStatus('❌ Upload gambar terlebih dahulu!', 'error');
+            return;
+        }
+
+        document.getElementById('loading').style.display = 'flex';
+        document.getElementById('uploadBtn').disabled = true;
+
+        try {
+            // Generate canvas
+            const canvas = await html2canvas(document.getElementById('cameraContainer'), {
+                backgroundColor: null,
+                scale: 2,
+                logging: false
+            });
+
+            // Convert ke blob
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+            const formData = new FormData();
+            formData.append('image', blob, 'camera-overlay.png');
+            formData.append('key', IMGBB_API_KEY);
+
+            // Upload
+            const response = await fetch('https://api.imgbb.com/1/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if(data.success) {
+                const imageUrl = data.data.url;
+                
+                // Tampilkan hasil (hanya link gambar, tidak ada link tujuan)
+                document.getElementById('imageLink').textContent = imageUrl;
+                document.getElementById('resultBox').classList.add('show');
+                showStatus('✅ Upload berhasil! Link siap dicopy.', 'success');
+                
+                // Auto copy ke clipboard
+                navigator.clipboard.writeText(imageUrl).then(() => {
+                    console.log('Link tersalin otomatis');
+                });
+            } else {
+                throw new Error(data.error?.message || 'Upload gagal');
+            }
+        } catch(error) {
+            showStatus('❌ Error: ' + error.message, 'error');
+        } finally {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('uploadBtn').disabled = false;
+        }
+    }
+
+    function copyLink() {
+        const link = document.getElementById('imageLink').textContent;
+        navigator.clipboard.writeText(link).then(() => {
+            showStatus('✅ Link dicopy ke clipboard!', 'success');
+        });
+    }
+
+    function showStatus(msg, type) {
+        const status = document.getElementById('statusMsg');
+        status.textContent = msg;
+        status.className = 'status ' + type;
+        setTimeout(() => { status.style.display = 'none'; }, 5000);
+    }
+
+    updatePreview();
+</script>
+
+</body>
+</html>
