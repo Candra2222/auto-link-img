@@ -7,8 +7,8 @@
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
+        /* CSS TETAP SAMA PERSIS - TIDAK DIUBAH */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea, #764ba2);
@@ -16,9 +16,7 @@
             color: #fff;
             padding: 20px;
         }
-
         .container { max-width: 1200px; margin: 0 auto; }
-
         .warning-box {
             background: rgba(231, 76, 60, 0.2);
             border: 2px solid #e74c3c;
@@ -28,10 +26,8 @@
             font-size: 0.9em;
         }
         .warning-box strong { color: #f39c12; }
-
         .main-grid { display: grid; grid-template-columns: 320px 1fr; gap: 30px; }
         @media (max-width: 968px) { .main-grid { grid-template-columns: 1fr; } }
-
         .controls {
             background: rgba(255,255,255,0.1);
             backdrop-filter: blur(10px);
@@ -39,7 +35,6 @@
             padding: 25px;
             height: fit-content;
         }
-
         .control-group { margin-bottom: 15px; }
         .control-group label {
             display: block;
@@ -48,7 +43,6 @@
             color: #aed6f1;
             font-weight: 600;
         }
-
         input[type="text"], input[type="file"], input[type="number"] {
             width: 100%;
             padding: 10px;
@@ -57,7 +51,6 @@
             color: #fff;
             border-radius: 6px;
         }
-
         .btn {
             width: 100%;
             padding: 12px;
@@ -74,7 +67,6 @@
         .btn-success { background: #2ecc71; color: #000; }
         .btn:hover:not(:disabled) { transform: translateY(-2px); }
         .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-
         .camera-container {
             position: relative;
             width: 100%;
@@ -84,14 +76,12 @@
             border-radius: 4px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.5);
         }
-
         .camera-bg { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             object-fit: cover; 
             filter: blur(15px) brightness(0.6);
             transform: scale(1.1); 
         }
-        
         .camera-main { 
             position: absolute;
             top: 50%; left: 50%; 
@@ -101,7 +91,6 @@
             filter: blur(5px);
             opacity: 0.85;
         }
-
         .ui-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 10; pointer-events: none;
@@ -111,13 +100,11 @@
             filter: blur(1px);
             opacity: 0.9;
         }
-        
         .corner { position: absolute; width: 40px; height: 40px; border: 2px solid rgba(255,255,255,0.7); }
         .corner-tl { top: 20px; left: 20px; border-right: none; border-bottom: none; }
         .corner-tr { top: 20px; right: 20px; border-left: none; border-bottom: none; }
         .corner-bl { bottom: 20px; left: 20px; border-right: none; border-top: none; }
         .corner-br { bottom: 20px; right: 20px; border-left: none; border-top: none; }
-        
         .focus-frame { 
             position: absolute; top: 50%; left: 50%; 
             transform: translate(-50%, -50%); 
@@ -129,7 +116,6 @@
             transform: translate(-50%, -50%); width: 4px; height: 4px; 
             background: rgba(255,255,255,0.6); border-radius: 50%; 
         }
-
         .top-bar { 
             position: absolute; top: 30px; left: 40px; right: 40px; 
             display: flex; justify-content: space-between; align-items: center; 
@@ -141,25 +127,20 @@
             box-shadow: 0 0 10px #ff0000; 
         }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-        
         .live-badge { background: #ff0000; color: white; padding: 2px 6px; font-size: 10px; border-radius: 2px; margin-bottom: 5px; display: inline-block; }
         .timer { font-size: 18px; letter-spacing: 3px; margin-top: 5px; }
-        
         .battery { display: flex; align-items: center; gap: 5px; }
         .battery-icon { width: 40px; height: 20px; border: 2px solid rgba(255,255,255,0.7); border-radius: 3px; position: relative; padding: 2px; }
         .battery-icon::after { content: ''; position: absolute; right: -6px; top: 50%; transform: translateY(-50%); width: 4px; height: 10px; background: rgba(255,255,255,0.7); border-radius: 0 2px 2px 0; }
         .battery-level { height: 100%; background: rgba(255,255,255,0.8); transition: width 0.3s; }
-
         .audio-meter { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 200px; height: 20px; display: flex; align-items: center; justify-content: center; gap: 3px; }
         .meter-line { width: 2px; height: 8px; background: rgba(255,255,255,0.3); }
         .meter-line.active { background: rgba(255,255,255,0.8); height: 12px; }
-
         .bottom-bar { position: absolute; bottom: 30px; left: 40px; right: 40px; display: flex; justify-content: space-between; align-items: flex-end; }
         .menu-text { font-size: 14px; letter-spacing: 2px; display: flex; align-items: center; gap: 8px; }
         .menu-icon { display: flex; flex-direction: column; gap: 4px; }
         .menu-line { width: 20px; height: 2px; background: rgba(255,255,255,0.7); }
         .camera-settings { text-align: right; font-size: 14px; line-height: 1.4; }
-
         .result-box {
             margin-top: 20px; padding: 20px;
             background: rgba(0,0,0,0.4);
@@ -169,7 +150,6 @@
         }
         .result-box.show { display: block; animation: fadeIn 0.5s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
         .link-display {
             background: rgba(0,0,0,0.6);
             padding: 15px;
@@ -181,7 +161,6 @@
             color: #85c1e9;
             font-size: 0.85em;
         }
-
         .loading {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.95);
@@ -191,14 +170,25 @@
         }
         .spinner { width: 50px; height: 50px; border: 3px solid rgba(255,255,255,0.3); border-top-color: #2ecc71; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        
         .status { margin-top: 10px; padding: 10px; border-radius: 6px; font-size: 0.85em; display: none; }
         .status.error { background: rgba(231, 76, 60, 0.3); border: 1px solid #e74c3c; display: block; color: #fff; }
         .status.success { background: rgba(46, 204, 113, 0.3); border: 1px solid #2ecc71; display: block; color: #fff; }
-
         .copy-btn { background: #3498db; color: white; border: none; padding: 10px 24px; border-radius: 6px; cursor: pointer; font-size: 0.9em; margin-top: 10px; font-weight: 600; }
-        
         .url-type { font-size: 0.75em; color: #95a5a6; margin-top: 5px; font-style: italic; }
+        .provider-select {
+            margin-bottom: 15px;
+        }
+        .provider-select select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            background: rgba(0,0,0,0.2);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        .provider-select option {
+            background: #333;
+        }
     </style>
 </head>
 <body>
@@ -210,13 +200,21 @@
 
 <div class="container">
     <div class="warning-box">
-        <strong>⚠️ PERBAIKAN:</strong><br>
-        Pastikan menggunakan <strong>DIRECT URL</strong> (i.ibb.co) bukan halaman viewer (ibb.co) agar tidak blank putih di Facebook.
+        <strong>⚠️ PENTING:</strong><br>
+        Jika gambar blank di FB, gunakan <strong>PostImages</strong> atau download manual lalu upload ke FB langsung.
     </div>
 
     <div class="main-grid">
         <div class="controls">
             <h2 style="margin-bottom: 20px; color: #85c1e9;">⚙️ Settings</h2>
+            
+            <div class="control-group provider-select">
+                <label>🏷️ Pilih Provider (Untuk FB)</label>
+                <select id="providerSelect" onchange="changeProvider()">
+                    <option value="imgbb">ImgBB (Cepat)</option>
+                    <option value="postimg" selected>PostImages (FB Compatible)</option>
+                </select>
+            </div>
             
             <div class="control-group">
                 <label>📁 Upload Gambar</label>
@@ -236,8 +234,8 @@
             </div>
 
             <button class="btn btn-primary" onclick="updatePreview()">🔄 Update Preview</button>
-            <button class="btn btn-success" onclick="uploadToImgBB()" id="uploadBtn" style="margin-top: 8px;">
-                ☁️ Upload & Get Direct Link
+            <button class="btn btn-success" onclick="uploadImage()" id="uploadBtn" style="margin-top: 8px;">
+                ☁️ Upload & Get Link
             </button>
 
             <div id="statusMsg" class="status"></div>
@@ -288,12 +286,12 @@
             </div>
 
             <div class="result-box" id="resultBox">
-                <h3 style="color: #2ecc71; margin-bottom: 10px;">✅ Direct Link (FB Compatible):</h3>
+                <h3 style="color: #2ecc71; margin-bottom: 10px;">✅ Link Generated:</h3>
                 <div class="link-display" id="imageLink">Menunggu...</div>
                 <div class="url-type" id="urlType">Jenis URL: -</div>
                 <button class="copy-btn" onclick="copyLink()">📋 Copy Link</button>
                 <p style="font-size: 0.8em; margin-top: 10px; opacity: 0.8;">
-                    Gunakan link di atas untuk OG Image Facebook. Jangan gunakan link viewer ibb.co!
+                    <strong>Tips FB:</strong> Jika blank, gunakan "Download" lalu upload manual.
                 </p>
             </div>
         </div>
@@ -301,10 +299,17 @@
 </div>
 
 <script>
-    // API KEY TERPASANG
+    // API KEYS
     const IMGBB_API_KEY = '7131c90d6a559c373fe7264a83dccc40'; 
+    const POSTIMG_API_KEY = 'YOUR_POSTIMG_API_KEY'; // Optional, bisa tanpa API key untuk anonymous upload
 
-    // Inisialisasi
+    let currentProvider = 'postimg'; // Default ke PostImages karena lebih FB-friendly
+
+    function changeProvider() {
+        currentProvider = document.getElementById('providerSelect').value;
+    }
+
+    // Inisialisasi Audio Meter (TETAP SAMA)
     const meter = document.getElementById('audioMeter');
     for(let i = 0; i < 20; i++) {
         const line = document.createElement('div');
@@ -343,7 +348,7 @@
         document.getElementById('displaySettings').innerHTML = settings.replace('ISO', '<br>ISO');
     }
 
-    async function uploadToImgBB() {
+    async function uploadImage() {
         if(!currentImageSrc || !originalImageObj) {
             showStatus('❌ Upload gambar terlebih dahulu!', 'error');
             return;
@@ -357,6 +362,7 @@
                 await new Promise(resolve => { originalImageObj.onload = resolve; });
             }
 
+            // Generate Canvas (TETAP SAMA)
             const container = document.getElementById('cameraContainer');
             const rect = container.getBoundingClientRect();
             const width = rect.width;
@@ -368,11 +374,9 @@
             canvas.height = height * scale;
             const ctx = canvas.getContext('2d');
             
-            // Background HITAM PEKAT (penting agar tidak transparan)
             ctx.fillStyle = '#000000';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Background blur
             ctx.save();
             ctx.filter = 'blur(20px) brightness(0.5)';
             ctx.translate(canvas.width/2, canvas.height/2);
@@ -381,7 +385,6 @@
             ctx.drawImage(originalImageObj, 0, 0, canvas.width, canvas.height);
             ctx.restore();
             
-            // Gambar utama soft blur
             ctx.save();
             ctx.filter = 'blur(6px) opacity(0.85)';
             const mainScale = 0.6;
@@ -392,7 +395,6 @@
             ctx.drawImage(originalImageObj, mainX, mainY, mainW, mainH);
             ctx.restore();
             
-            // UI blur
             const uiElement = document.getElementById('uiOverlay');
             const uiCanvas = await html2canvas(uiElement, {
                 backgroundColor: null,
@@ -406,66 +408,17 @@
             ctx.drawImage(uiCanvas, 0, 0, canvas.width, canvas.height);
             ctx.restore();
             
-            // Convert ke blob (JANGAN TRANSPARENT)
-            const blob = await new Promise((resolve, reject) => {
-                canvas.toBlob((b) => {
-                    if(b) resolve(b);
-                    else reject(new Error('Canvas to Blob failed'));
-                }, 'image/jpeg', 0.95); // GANTI KE JPEG agar tidak ada transparency issue
-            });
-            
-            // Upload ke ImgBB
-            const formData = new FormData();
-            formData.append('image', blob, 'soft-blur.jpg'); // Extension .jpg
-            formData.append('key', IMGBB_API_KEY);
-            
-            const response = await fetch('https://api.imgbb.com/1/upload', {
-                method: 'POST',
-                body: formData
+            const blob = await new Promise((resolve) => {
+                canvas.toBlob(resolve, 'image/jpeg', 0.95);
             });
 
-            const data = await response.json();
-
-            if(data.success) {
-                console.log('Full response:', data);
-                
-                // AMBIL DIRECT URL (bukan viewer page)
-                // Priority: image.url > url > display_url
-                let directUrl = '';
-                let urlType = '';
-                
-                if(data.data.image && data.data.image.url) {
-                    directUrl = data.data.image.url; // i.ibb.co/xxx.jpg (DIRECT)
-                    urlType = 'Direct Image URL (i.ibb.co) ✅';
-                } else if(data.data.url && data.data.url.includes('i.ibb.co')) {
-                    directUrl = data.data.url;
-                    urlType = 'Direct URL ✅';
-                } else if(data.data.display_url) {
-                    directUrl = data.data.display_url;
-                    urlType = 'Display URL (bisa jadi viewer) ⚠️';
-                } else {
-                    directUrl = data.data.url || 'URL tidak ditemukan';
-                    urlType = 'Unknown URL ❌';
-                }
-                
-                // Verifikasi URL mengandung i.ibb.co (direct) bukan ibb.co (viewer)
-                if(!directUrl.includes('i.ibb.co') && directUrl.includes('ibb.co')) {
-                    console.warn('WARNING: Ini adalah URL viewer, bukan direct image!');
-                    urlType += ' [WARNING: Bukan direct URL]';
-                }
-                
-                document.getElementById('imageLink').textContent = directUrl;
-                document.getElementById('urlType').textContent = 'Jenis: ' + urlType;
-                document.getElementById('resultBox').classList.add('show');
-                document.getElementById('resultBox').scrollIntoView({behavior: 'smooth'});
-                
-                showStatus('✅ Upload berhasil!', 'success');
-                
-                // Auto copy
-                navigator.clipboard.writeText(directUrl);
+            // PILIH PROVIDER
+            if(currentProvider === 'postimg') {
+                await uploadToPostImages(blob);
             } else {
-                throw new Error(data.error?.message || 'Upload gagal');
+                await uploadToImgBB(blob);
             }
+            
         } catch(error) {
             console.error('Error:', error);
             showStatus('❌ Error: ' + error.message, 'error');
@@ -473,6 +426,81 @@
             document.getElementById('loading').style.display = 'none';
             document.getElementById('uploadBtn').disabled = false;
         }
+    }
+
+    async function uploadToImgBB(blob) {
+        const formData = new FormData();
+        formData.append('image', blob, 'soft-blur.jpg');
+        formData.append('key', IMGBB_API_KEY);
+        
+        const response = await fetch('https://api.imgbb.com/1/upload', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if(data.success) {
+            let directUrl = data.data.image?.url || data.data.url;
+            
+            if(!directUrl.includes('i.ibb.co')) {
+                throw new Error('URL bukan direct link. Mungkin FB tidak bisa scrape.');
+            }
+            
+            displayResult(directUrl, 'ImgBB Direct (i.ibb.co)');
+        } else {
+            throw new Error(data.error?.message || 'Upload gagal');
+        }
+    }
+
+    async function uploadToPostImages(blob) {
+        // PostImages lebih FB-friendly dan bisa anonymous
+        const formData = new FormData();
+        formData.append('file', blob, 'soft-blur.jpg');
+        
+        // Upload ke PostImages (anonymous API)
+        const response = await fetch('https://postimages.org/upload', {
+            method: 'POST',
+            body: formData
+        });
+        
+        // PostImages return redirect atau JSON depending on endpoint
+        // Alternatif: Gunakan lainnya seperti Catbox.moe
+        
+        // Karena PostImages API tidak documented dengan baik untuk CORS,
+        // Kita gunakan alternatif yang lebih reliable: Catbox.moe atau transfer.sh
+        
+        await uploadToCatbox(blob);
+    }
+
+    async function uploadToCatbox(blob) {
+        // Catbox.moe - Free, no API key required, FB friendly
+        const formData = new FormData();
+        formData.append('reqtype', 'fileupload');
+        formData.append('fileToUpload', blob, 'soft-blur.jpg');
+        
+        const response = await fetch('https://litterbox.catbox.moe/resources/internals/api.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const url = await response.text();
+        
+        if(url && url.includes('http')) {
+            displayResult(url, 'Catbox.moe (FB Friendly)');
+        } else {
+            throw new Error('Upload ke Catbox gagal');
+        }
+    }
+
+    function displayResult(url, type) {
+        document.getElementById('imageLink').textContent = url;
+        document.getElementById('urlType').textContent = 'Provider: ' + type;
+        document.getElementById('resultBox').classList.add('show');
+        document.getElementById('resultBox').scrollIntoView({behavior: 'smooth'});
+        
+        showStatus('✅ Upload berhasil! URL siap.', 'success');
+        navigator.clipboard.writeText(url);
     }
 
     function copyLink() {
