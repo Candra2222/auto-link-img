@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Camera Viewfinder → Blur Total Effect</title>
+    <title>Soft Blur Camera Viewfinder</title>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
@@ -11,7 +11,7 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            background: linear-gradient(135deg, #667eea, #764ba2);
             min-height: 100vh;
             color: #fff;
             padding: 20px;
@@ -20,14 +20,15 @@
         .container { max-width: 1200px; margin: 0 auto; }
 
         .warning-box {
-            background: linear-gradient(135deg, rgba(231, 76, 60, 0.2), rgba(192, 57, 43, 0.2));
-            border: 2px solid #e74c3c;
+            background: rgba(255,255,255,0.15);
+            border: 2px solid rgba(255,255,255,0.3);
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 20px;
             font-size: 0.95em;
+            backdrop-filter: blur(5px);
         }
-        .warning-box strong { color: #f39c12; font-size: 1.1em; }
+        .warning-box strong { color: #fff; font-size: 1.1em; }
 
         .main-grid { display: grid; grid-template-columns: 320px 1fr; gap: 30px; }
         @media (max-width: 968px) { .main-grid { grid-template-columns: 1fr; } }
@@ -38,6 +39,7 @@
             border-radius: 15px;
             padding: 25px;
             height: fit-content;
+            border: 1px solid rgba(255,255,255,0.2);
         }
 
         .control-group { margin-bottom: 15px; }
@@ -45,7 +47,7 @@
             display: block;
             margin-bottom: 5px;
             font-size: 0.85em;
-            color: #85c1e9;
+            color: rgba(255,255,255,0.9);
             font-weight: 600;
         }
 
@@ -71,8 +73,8 @@
             font-size: 0.9em;
             text-transform: uppercase;
         }
-        .btn-primary { background: linear-gradient(135deg, #3498db, #2980b9); color: white; }
-        .btn-success { background: linear-gradient(135deg, #9b59b6, #8e44ad); color: #fff; }
+        .btn-primary { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); }
+        .btn-success { background: rgba(46, 204, 113, 0.8); color: #fff; }
         .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.3); }
         .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
@@ -89,27 +91,34 @@
         .camera-bg { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             object-fit: cover; 
-            filter: blur(20px) brightness(0.5); /* Blur lebih kuat di preview */
-            transform: scale(1.2); 
+            filter: blur(15px) brightness(0.6); /* Soft blur background */
+            transform: scale(1.1); 
         }
+        
         .camera-main { 
             position: absolute;
             top: 50%; left: 50%; 
             transform: translate(-50%, -50%); 
             max-width: 60%; max-height: 70%; 
             z-index: 2; 
-            filter: blur(3px); /* Gambar utama juga blur */
-            opacity: 0.8;
+            filter: blur(5px); /* Soft blur gambar utama */
+            opacity: 0.9;
         }
 
         .ui-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 10; pointer-events: none;
             font-family: 'Share Tech Mono', monospace; 
-            color: rgba(255,255,255,0.9);
-            text-shadow: 0 0 5px rgba(0,0,0,0.8);
+            color: rgba(255,255,255,0.8);
+            text-shadow: 0 0 3px rgba(0,0,0,0.5);
+            filter: blur(1px); /* Soft blur UI */
+            opacity: 0.9;
         }
-        .corner { position: absolute; width: 40px; height: 40px; border: 2px solid rgba(255,255,255,0.8); }
+        
+        .corner { 
+            position: absolute; width: 40px; height: 40px; 
+            border: 2px solid rgba(255,255,255,0.7); 
+        }
         .corner-tl { top: 20px; left: 20px; border-right: none; border-bottom: none; }
         .corner-tr { top: 20px; right: 20px; border-left: none; border-bottom: none; }
         .corner-bl { bottom: 20px; left: 20px; border-right: none; border-top: none; }
@@ -119,90 +128,115 @@
             position: absolute; top: 50%; left: 50%; 
             transform: translate(-50%, -50%); 
             width: 60px; height: 60px; 
-            border: 2px solid rgba(255,255,255,0.6); 
+            border: 2px solid rgba(255,255,255,0.5); 
         }
         .focus-frame::before { 
             content: ''; position: absolute; top: 50%; left: 50%; 
             transform: translate(-50%, -50%); width: 4px; height: 4px; 
-            background: rgba(255,255,255,0.8); border-radius: 50%; 
+            background: rgba(255,255,255,0.6); border-radius: 50%; 
         }
 
         .top-bar { 
             position: absolute; top: 30px; left: 40px; right: 40px; 
             display: flex; justify-content: space-between; align-items: center; 
         }
-        .rec-indicator { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: bold; }
-        .rec-dot { 
-            width: 12px; height: 12px; background: #ff0000; 
-            border-radius: 50%; animation: blink 1s infinite; 
-            box-shadow: 0 0 10px #ff0000; 
+        .rec-indicator { 
+            display: flex; align-items: center; gap: 8px; 
+            font-size: 14px; font-weight: bold; 
+            filter: blur(0.5px); /* Soft blur text */
         }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .rec-dot { 
+            width: 12px; height: 12px; background: rgba(255,0,0,0.8); 
+            border-radius: 50%; animation: blink 1.5s infinite; 
+            box-shadow: 0 0 8px rgba(255,0,0,0.6); 
+            filter: blur(1px);
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
         
-        .live-badge { background: #ff0000; color: white; padding: 2px 6px; font-size: 10px; border-radius: 2px; margin-bottom: 5px; display: inline-block; }
-        .timer { font-size: 18px; letter-spacing: 3px; margin-top: 5px; }
+        .live-badge { 
+            background: rgba(255,0,0,0.8); color: white; padding: 2px 6px; 
+            font-size: 10px; border-radius: 2px; margin-bottom: 5px; 
+            display: inline-block; filter: blur(0.5px); 
+        }
+        .timer { 
+            font-size: 18px; letter-spacing: 3px; margin-top: 5px; 
+            filter: blur(0.3px);
+            opacity: 0.9;
+        }
         
-        .battery { display: flex; align-items: center; gap: 5px; }
+        .battery { display: flex; align-items: center; gap: 5px; filter: blur(0.5px); }
         .battery-icon { 
-            width: 40px; height: 20px; border: 2px solid rgba(255,255,255,0.8); 
+            width: 40px; height: 20px; border: 2px solid rgba(255,255,255,0.7); 
             border-radius: 3px; position: relative; padding: 2px; 
         }
         .battery-icon::after { 
             content: ''; position: absolute; right: -6px; top: 50%; 
             transform: translateY(-50%); width: 4px; height: 10px; 
-            background: rgba(255,255,255,0.8); border-radius: 0 2px 2px 0; 
+            background: rgba(255,255,255,0.7); border-radius: 0 2px 2px 0; 
         }
-        .battery-level { height: 100%; background: rgba(255,255,255,0.9); transition: width 0.3s; }
+        .battery-level { height: 100%; background: rgba(255,255,255,0.8); transition: width 0.3s; }
 
         .audio-meter { 
             position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); 
-            width: 200px; height: 20px; display: flex; align-items: center; justify-content: center; gap: 3px; 
+            width: 200px; height: 20px; display: flex; align-items: center; 
+            justify-content: center; gap: 3px; filter: blur(1px);
         }
         .meter-line { width: 2px; height: 8px; background: rgba(255,255,255,0.3); }
-        .meter-line.active { background: rgba(255,255,255,0.9); height: 14px; }
+        .meter-line.active { background: rgba(255,255,255,0.8); height: 12px; }
 
         .bottom-bar { 
             position: absolute; bottom: 30px; left: 40px; right: 40px; 
             display: flex; justify-content: space-between; align-items: flex-end; 
+            filter: blur(0.5px);
         }
-        .menu-text { font-size: 14px; letter-spacing: 2px; display: flex; align-items: center; gap: 8px; }
+        .menu-text { 
+            font-size: 14px; letter-spacing: 2px; 
+            display: flex; align-items: center; gap: 8px; 
+        }
         .menu-icon { display: flex; flex-direction: column; gap: 4px; }
-        .menu-line { width: 20px; height: 2px; background: rgba(255,255,255,0.8); }
-        .camera-settings { text-align: right; font-size: 14px; line-height: 1.4; }
+        .menu-line { width: 20px; height: 2px; background: rgba(255,255,255,0.7); }
+        .camera-settings { 
+            text-align: right; font-size: 14px; line-height: 1.4;
+            filter: blur(0.3px);
+        }
 
         .result-box {
             margin-top: 20px; padding: 20px;
-            background: rgba(0,0,0,0.4);
+            background: rgba(255,255,255,0.1);
             border-radius: 10px;
-            border: 2px solid #9b59b6;
+            border: 1px solid rgba(255,255,255,0.3);
             display: none;
+            backdrop-filter: blur(10px);
         }
         .result-box.show { display: block; animation: fadeIn 0.5s; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .link-display {
-            background: rgba(0,0,0,0.6);
+            background: rgba(0,0,0,0.3);
             padding: 15px;
             border-radius: 6px;
             margin: 10px 0;
             font-family: 'Share Tech Mono', monospace;
             word-break: break-all;
-            border: 1px solid #9b59b6;
-            color: #bb8fce;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #fff;
             font-size: 0.9em;
+            backdrop-filter: blur(5px);
         }
 
         .loading {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95);
+            background: rgba(0,0,0,0.9);
             display: none;
             justify-content: center; align-items: center; flex-direction: column;
             z-index: 1000;
+            backdrop-filter: blur(10px);
         }
         .spinner { 
             width: 50px; height: 50px; 
             border: 3px solid rgba(255,255,255,0.3); 
-            border-top-color: #9b59b6; border-radius: 50%; 
+            border-top-color: rgba(255,255,255,0.9); 
+            border-radius: 50%; 
             animation: spin 1s linear infinite; 
         }
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -212,27 +246,31 @@
             font-size: 0.85em; display: none; 
         }
         .status.error { background: rgba(231, 76, 60, 0.3); border: 1px solid #e74c3c; display: block; color: #fff; }
-        .status.success { background: rgba(155, 89, 182, 0.3); border: 1px solid #9b59b6; display: block; color: #fff; }
+        .status.success { background: rgba(46, 204, 113, 0.3); border: 1px solid #2ecc71; display: block; color: #fff; }
 
         .copy-btn {
-            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            background: rgba(255,255,255,0.2);
             color: white;
-            border: none;
+            border: 1px solid rgba(255,255,255,0.3);
             padding: 10px 24px;
             border-radius: 6px;
             cursor: pointer;
             font-size: 0.9em;
             margin-top: 10px;
             font-weight: 600;
+            backdrop-filter: blur(5px);
+        }
+        .copy-btn:hover {
+            background: rgba(255,255,255,0.3);
         }
 
-        .blur-info {
-            background: rgba(155, 89, 182, 0.2);
+        .soft-info {
+            background: rgba(255,255,255,0.1);
             padding: 10px;
             border-radius: 6px;
             margin-top: 10px;
             font-size: 0.8em;
-            border-left: 3px solid #9b59b6;
+            border-left: 3px solid rgba(255,255,255,0.5);
         }
     </style>
 </head>
@@ -240,18 +278,18 @@
 
 <div class="loading" id="loading">
     <div class="spinner"></div>
-    <p style="margin-top: 20px; color: #9b59b6; font-size: 1.1em;">Processing Blur Effect...</p>
+    <p style="margin-top: 20px; color: #fff; font-size: 1.1em;">Processing Soft Blur...</p>
 </div>
 
 <div class="container">
     <div class="warning-box">
-        <strong>🎨 BLUR TOTAL EFFECT</strong><br>
-        Ganti <strong>IMGBB_API_KEY</strong> di script dengan API Key dari <a href="https://api.imgbb.com/" target="_blank" style="color: #f1c40f;">api.imgbb.com</a>
+        <strong>✨ SOFT BLUR MODE</strong><br>
+        API Key sudah terpasang. Upload gambar untuk mendapatkan efek soft blur menyeluruh.
     </div>
 
     <div class="main-grid">
         <div class="controls">
-            <h2 style="margin-bottom: 20px; color: #bb8fce;">⚙️ Settings</h2>
+            <h2 style="margin-bottom: 20px; color: #fff; text-align: center;">⚙️ Settings</h2>
             
             <div class="control-group">
                 <label>📁 Upload Gambar</label>
@@ -272,11 +310,11 @@
 
             <button class="btn btn-primary" onclick="updatePreview()">🔄 Update Preview</button>
             <button class="btn btn-success" onclick="uploadToImgBB()" id="uploadBtn" style="margin-top: 8px;">
-                ☁️ Upload Blur Effect
+                ☁️ Generate Soft Blur
             </button>
 
-            <div class="blur-info">
-                💡 <strong>Mode Blur Total:</strong> Background super blur + gambar utama soft blur. Hanya UI yang tajam.
+            <div class="soft-info">
+                💡 <strong>Soft Blur:</strong> Semua elemen (background, foto, UI) dibuat blur halus untuk efek dreamy.
             </div>
 
             <div id="statusMsg" class="status"></div>
@@ -327,11 +365,11 @@
             </div>
 
             <div class="result-box" id="resultBox">
-                <h3 style="color: #bb8fce; margin-bottom: 10px;">✅ Blur Effect Generated:</h3>
+                <h3 style="color: #fff; margin-bottom: 10px;">✅ Soft Blur Generated:</h3>
                 <div class="link-display" id="imageLink">Menunggu upload...</div>
                 <button class="copy-btn" onclick="copyLink()">📋 Copy Link</button>
                 <p style="font-size: 0.8em; margin-top: 10px; opacity: 0.8;">
-                    Gambar dengan efek blur total siap digunakan.
+                    Gambar dengan efek soft blur siap digunakan.
                 </p>
             </div>
         </div>
@@ -340,7 +378,7 @@
 
 <script>
     // ==========================================
-    // GANTI INI DENGAN API KEY KAMU
+    // API KEY SUDAH TERPASANG
     // ==========================================
     const IMGBB_API_KEY = '7131c90d6a559c373fe7264a83dccc40'; 
 
@@ -367,7 +405,7 @@
                 originalImageObj = new Image();
                 originalImageObj.src = currentImageSrc;
                 
-                showStatus('✅ Gambar siap untuk blur effect!', 'success');
+                showStatus('✅ Gambar siap!', 'success');
             };
             reader.readAsDataURL(file);
         }
@@ -384,11 +422,6 @@
     }
 
     async function uploadToImgBB() {
-        if(IMGBB_API_KEY === 'YOUR_IMGBB_API_KEY_HERE' || !IMGBB_API_KEY || IMGBB_API_KEY.length < 10) {
-            showStatus('❌ API Key belum diatur!', 'error');
-            return;
-        }
-
         if(!currentImageSrc || !originalImageObj) {
             showStatus('❌ Upload gambar terlebih dahulu!', 'error');
             return;
@@ -413,26 +446,26 @@
             canvas.height = height * scale;
             const ctx = canvas.getContext('2d');
             
-            // Background hitam pekat
+            // Background hitam
             ctx.fillStyle = '#000000';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
             // ==========================================
-            // EFEK BLUR TOTAL (Background Super Blur)
+            // SOFT BLUR BACKGROUND
             // ==========================================
             ctx.save();
-            ctx.filter = 'blur(40px) brightness(0.4)'; // Blur ekstreme 40px + gelap
+            ctx.filter = 'blur(20px) brightness(0.5)'; // Soft blur 20px
             ctx.translate(canvas.width/2, canvas.height/2);
-            ctx.scale(1.3, 1.3); // Scale lebih besar agar blur merata
+            ctx.scale(1.15, 1.15);
             ctx.translate(-canvas.width/2, -canvas.height/2);
             ctx.drawImage(originalImageObj, 0, 0, canvas.width, canvas.height);
             ctx.restore();
             
             // ==========================================
-            // Gambar Utama (Soft Blur / Semi Transparan)
+            // SOFT BLUR GAMBAR UTAMA
             // ==========================================
             ctx.save();
-            ctx.filter = 'blur(8px) opacity(0.6)'; // Gambar utama juga blur + transparan
+            ctx.filter = 'blur(6px) opacity(0.85)'; // Soft blur 6px
             const mainScale = 0.6;
             const mainW = canvas.width * mainScale;
             const mainH = (originalImageObj.height / originalImageObj.width) * mainW;
@@ -442,7 +475,7 @@
             ctx.restore();
             
             // ==========================================
-            // UI Overlay (Tajam, tidak blur)
+            // SOFT BLUR UI OVERLAY
             // ==========================================
             const uiElement = document.getElementById('uiOverlay');
             const uiCanvas = await html2canvas(uiElement, {
@@ -451,7 +484,12 @@
                 logging: false,
                 useCORS: true
             });
+            
+            // Apply soft blur ke UI juga
+            ctx.save();
+            ctx.filter = 'blur(2px) opacity(0.9)'; // UI soft blur 2px
             ctx.drawImage(uiCanvas, 0, 0, canvas.width, canvas.height);
+            ctx.restore();
             
             // Convert ke blob
             const blob = await new Promise((resolve, reject) => {
@@ -463,7 +501,7 @@
             
             // Upload
             const formData = new FormData();
-            formData.append('image', blob, 'blur-total-effect.png');
+            formData.append('image', blob, 'soft-blur-effect.png');
             formData.append('key', IMGBB_API_KEY);
             
             const response = await fetch('https://api.imgbb.com/1/upload', {
@@ -477,7 +515,7 @@
                 let imageUrl = data.data.image?.url || data.data.url || data.data.display_url;
                 
                 if(!imageUrl) {
-                    throw new Error('URL tidak ditemukan dalam response');
+                    throw new Error('URL tidak ditemukan');
                 }
                 
                 const resultBox = document.getElementById('resultBox');
@@ -488,8 +526,12 @@
                 resultBox.classList.add('show');
                 resultBox.scrollIntoView({behavior: 'smooth'});
                 
-                showStatus('✅ Blur total effect berhasil dibuat!', 'success');
-                navigator.clipboard.writeText(imageUrl);
+                showStatus('✅ Soft blur berhasil dibuat!', 'success');
+                
+                // Auto copy
+                try {
+                    await navigator.clipboard.writeText(imageUrl);
+                } catch(e) {}
             } else {
                 throw new Error(data.error?.message || 'Upload gagal');
             }
