@@ -310,8 +310,9 @@
     // ==========================================
     // SETTING CLOUDINARY - WAJIB DIISI
     // ==========================================
-    const CLOUD_NAME = 'your_cloud_name'; // Contoh: dxabc1234
-    const UPLOAD_PRESET = 'your_unsigned_preset'; // Contoh: softblur_preset
+    const CLOUD_NAME = 'dhmu3r2gj'; // Contoh: dxabc1234
+    const UPLOAD_PRESET = 'ii0TwsD579mSVLwlsb1O0KvsKRk'; // Contoh: softblur_preset
+    const API_KEY = '193341511998816'; // API Key Cloudinary
     
     // Cara setup:
     // 1. Daftar cloudinary.com
@@ -359,12 +360,12 @@
     }
 
     async function uploadToCloudinary() {
-        if(CLOUD_NAME === 'dhmu3r2gj' || !CLOUD_NAME) {
+        if(CLOUD_NAME === 'your_cloud_name' || !CLOUD_NAME) {
             showStatus('❌ CLOUD_NAME belum diatur!', 'error');
             return;
         }
         
-        if(UPLOAD_PRESET === 'ii0TwsD579mSVLwlsb1O0KvsKRk' || !UPLOAD_PRESET) {
+        if(UPLOAD_PRESET === 'your_unsigned_preset' || !UPLOAD_PRESET) {
             showStatus('❌ UPLOAD_PRESET belum diatur!', 'error');
             return;
         }
@@ -444,7 +445,7 @@
             console.log('Cloudinary Response:', data);
 
             // Ambil secure_url untuk HTTPS (wajib untuk FB OG)
-            const imageUrl = data.secure_url; // Format: https://res.cloudinary.com/xxx/image/upload/xxx.jpg
+            const imageUrl = data.secure_url; // Format: https://res.cloudinary.com/xxx/image/upload/xxx.jpg  
             
             if(!imageUrl) {
                 throw new Error('URL tidak valid dari Cloudinary');
@@ -556,4 +557,4 @@
 </script>
 
 </body>
-    </html>
+</html>
