@@ -160,56 +160,61 @@
         .menu-line { width: 20px; height: 2px; background: rgba(255,255,255,0.7); }
         .camera-settings { text-align: right; font-size: 14px; line-height: 1.4; }
 
-        /* NEW: Member Login Overlay - Reference Image Style */
+        /* IMPROVED: Member Login Overlay - Lebih Full & Blur Kuat */
         .member-overlay {
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 280px;
-            height: 180px;
-            background: rgba(20, 20, 20, 0.6);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            width: 320px;
+            height: 220px;
+            background: rgba(30, 30, 30, 0.75);
+            backdrop-filter: blur(40px) saturate(180%);
+            -webkit-backdrop-filter: blur(40px) saturate(180%);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 25;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
             pointer-events: none;
+            padding: 30px;
         }
         .member-overlay.active { display: flex; }
         .member-icon {
-            width: 50px; height: 50px;
-            background: rgba(255,255,255,0.15);
+            width: 60px; height: 60px;
+            background: rgba(255,255,255,0.12);
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            margin-bottom: 12px;
-            font-size: 24px;
-            border: 2px solid rgba(255,255,255,0.6);
+            margin-bottom: 16px;
+            font-size: 28px;
+            border: 2px solid rgba(255,255,255,0.5);
             color: #fff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
         .member-text {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-size: 20px;
-            font-weight: 700;
-            letter-spacing: 2px;
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: 3px;
             color: #fff;
             text-transform: uppercase;
-            margin-bottom: 4px;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+            margin-bottom: 6px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
         }
         .member-subtext {
-            font-size: 11px;
-            color: rgba(255,255,255,0.8);
-            letter-spacing: 1.5px;
-            font-weight: 500;
+            font-size: 12px;
+            color: rgba(255,255,255,0.85);
+            letter-spacing: 2px;
+            font-weight: 600;
             text-transform: uppercase;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.6);
         }
 
-        /* NEW: Facebook Live Mode Styles */
+        /* Facebook Live Mode Styles */
         .fb-live-indicator {
             position: absolute;
             top: 65px;
@@ -319,6 +324,7 @@
         }
         .checkbox-group input[type="checkbox"] { width: auto; }
     </style>
+<base target="_blank">
 </head>
 <body>
 
@@ -355,7 +361,6 @@
                 <input type="number" id="batteryLevel" value="70" min="0" max="100">
             </div>
 
-            <!-- NEW: Feature Toggles -->
             <div class="control-group">
                 <label>🎭 Overlay Options</label>
                 <div class="checkbox-group">
@@ -395,14 +400,12 @@
                     <div class="corner corner-br"></div>
                     <div class="focus-frame"></div>
                     
-                    <!-- NEW: Member Login Overlay (Reference Image Style) -->
                     <div class="member-overlay" id="memberOverlay">
                         <div class="member-icon">🚫</div>
                         <div class="member-text">VIEW FREE</div>
                         <div class="member-subtext">Member Login</div>
                     </div>
 
-                    <!-- NEW: Facebook Live Indicator -->
                     <div class="fb-live-indicator" id="fbLiveIndicator">
                         <div class="fb-pulse"></div>
                         <div class="fb-logo">f</div>
@@ -459,20 +462,10 @@
 </div>
 
 <script>
-    // ==========================================
-    // SETTING CLOUDINARY - WAJIB DIISI
-    // ==========================================
-    const CLOUD_NAME = 'dhmu3r2gj'; // Contoh: dxabc1234
-    const UPLOAD_PRESET = 'Img_post'; // Contoh: softblur_preset
-    const API_KEY = '193341511998816'; // API Key Cloudinary
-    
-    // Cara setup:
-    // 1. Daftar cloudinary.com
-    // 2. Dashboard → Settings (gear icon) → Upload → Upload presets
-    // 3. Add upload preset → Signing Mode: Unsigned → Save
-    // 4. Copy preset name ke atas
+    const CLOUD_NAME = 'dhmu3r2gj';
+    const UPLOAD_PRESET = 'Img_post';
+    const API_KEY = '193341511998816';
 
-    // Inisialisasi Audio Meter
     const meter = document.getElementById('audioMeter');
     for(let i = 0; i < 20; i++) {
         const line = document.createElement('div');
@@ -502,7 +495,6 @@
         }
     });
 
-    // NEW: Toggle Member Login Overlay
     document.getElementById('memberOverlayToggle').addEventListener('change', function(e) {
         const overlay = document.getElementById('memberOverlay');
         if(e.target.checked) {
@@ -512,7 +504,6 @@
         }
     });
 
-    // NEW: Toggle Facebook Live Mode
     document.getElementById('facebookLiveToggle').addEventListener('change', function(e) {
         const indicator = document.getElementById('fbLiveIndicator');
         const viewers = document.getElementById('fbViewers');
@@ -521,23 +512,20 @@
             indicator.classList.add('active');
             viewers.classList.add('active');
             startViewerSimulation();
-            // Update timer text to show直播 duration format
             document.getElementById('displayTimer').textContent = '00:00:00';
         } else {
             indicator.classList.remove('active');
             viewers.classList.remove('active');
             stopViewerSimulation();
-            updatePreview(); // Restore original timer
+            updatePreview();
         }
     });
 
-    // NEW: Simulate live viewer count changes
     function startViewerSimulation() {
         let count = 1200;
         updateViewerDisplay(count);
         
         viewerInterval = setInterval(() => {
-            // Randomly increase or decrease viewers slightly
             const change = Math.floor(Math.random() * 50) - 20;
             count += change;
             if(count < 100) count = 100;
@@ -598,15 +586,13 @@
             }
 
             const canvas = document.createElement('canvas');
-            canvas.width = 1200; // Ukuran optimal FB OG
+            canvas.width = 1200;
             canvas.height = 630;
             const ctx = canvas.getContext('2d');
             
-            // Background hitam solid
             ctx.fillStyle = '#000000';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Background blur
             ctx.save();
             ctx.filter = 'blur(30px) brightness(0.5)';
             const imgAspect = originalImageObj.width / originalImageObj.height;
@@ -621,7 +607,6 @@
             }
             ctx.restore();
             
-            // Gambar utama
             ctx.save();
             ctx.filter = 'blur(5px)';
             const mainHeight = canvas.height * 0.7;
@@ -629,7 +614,6 @@
             ctx.drawImage(originalImageObj, (canvas.width - mainWidth)/2, (canvas.height - mainHeight)/2, mainWidth, mainHeight);
             ctx.restore();
             
-            // UI Overlay (includes Member Login and FB Live overlays if active)
             const uiElement = document.getElementById('uiOverlay');
             const uiCanvas = await html2canvas(uiElement, { backgroundColor: null, scale: 1 });
             ctx.save();
@@ -637,10 +621,8 @@
             ctx.drawImage(uiCanvas, 0, 0, canvas.width, canvas.height);
             ctx.restore();
             
-            // Convert ke blob untuk upload
             const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.95));
             
-            // Upload ke Cloudinary
             const formData = new FormData();
             formData.append('file', blob, 'softblur.jpg');
             formData.append('upload_preset', UPLOAD_PRESET);
@@ -658,21 +640,18 @@
 
             console.log('Cloudinary Response:', data);
 
-            // Ambil secure_url untuk HTTPS (wajib untuk FB OG)
-            const imageUrl = data.secure_url; // Format: https://res.cloudinary.com/xxx/image/upload/xxx.jpg   
+            const imageUrl = data.secure_url;
             
             if(!imageUrl) {
                 throw new Error('URL tidak valid dari Cloudinary');
             }
 
-            // Display result
             document.getElementById('imageLink').textContent = imageUrl;
             document.getElementById('resultBox').classList.add('show');
             document.getElementById('resultBox').scrollIntoView({behavior: 'smooth'});
             
             showStatus('✅ Upload berhasil! Link siap untuk FB OG.', 'success');
             
-            // Auto copy
             navigator.clipboard.writeText(imageUrl);
             
         } catch(error) {
@@ -771,4 +750,4 @@
 </script>
 
 </body>
-</html>
+    </html>
