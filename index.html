@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Soft Blur Camera - Cloudinary API</title>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             min-height: 100vh;
             color: #fff;
             padding: 20px;
@@ -20,12 +20,13 @@
         .container { max-width: 1200px; margin: 0 auto; }
 
         .warning-box {
-            background: rgba(231, 76, 60, 0.2);
-            border: 2px solid #e74c3c;
+            background: rgba(231, 76, 60, 0.15);
+            border: 1px solid rgba(231, 76, 60, 0.5);
             border-radius: 12px;
             padding: 15px;
             margin-bottom: 20px;
             font-size: 0.9em;
+            backdrop-filter: blur(10px);
         }
         .warning-box strong { color: #f39c12; }
 
@@ -33,88 +34,223 @@
         @media (max-width: 968px) { .main-grid { grid-template-columns: 1fr; } }
 
         .controls {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
             padding: 25px;
             height: fit-content;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
-        .control-group { margin-bottom: 15px; }
+        .control-group { margin-bottom: 18px; }
         .control-group label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             font-size: 0.85em;
-            color: #aed6f1;
-            font-weight: 600;
+            color: #a0a0a0;
+            font-weight: 500;
         }
 
         input[type="text"], input[type="file"], input[type="number"] {
             width: 100%;
-            padding: 10px;
-            border: 1px solid rgba(255,255,255,0.3);
-            background: rgba(0,0,0,0.2);
+            padding: 12px;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(0,0,0,0.3);
             color: #fff;
-            border-radius: 6px;
+            border-radius: 10px;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+        input[type="text"]:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: #3498db;
         }
 
         .btn {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s;
             margin-top: 10px;
             font-size: 0.9em;
-            text-transform: uppercase;
+            text-transform: none;
+            letter-spacing: 0.5px;
         }
-        .btn-primary { background: #3498db; color: white; }
-        .btn-success { background: #2ecc71; color: #000; }
-        .btn-warning { background: #f39c12; color: #000; }
-        .btn-orange { background: #e67e22; color: #fff; }
-        .btn:hover:not(:disabled) { transform: translateY(-2px); }
-        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-primary { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+        }
+        .btn-success { 
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); 
+            color: #000; 
+        }
+        .btn-warning { 
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); 
+            color: #fff; 
+        }
+        .btn-orange { 
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); 
+            color: #000; 
+        }
+        .btn:hover:not(:disabled) { 
+            transform: translateY(-2px); 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+        /* Camera Container - Full Blur Style */
         .camera-container {
             position: relative;
             width: 100%;
             aspect-ratio: 16/9;
             overflow: hidden;
             background: #000;
-            border-radius: 4px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            border-radius: 16px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8);
         }
 
         .camera-bg { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             object-fit: cover; 
-            filter: blur(15px) brightness(0.6);
-            transform: scale(1.1); 
+            filter: blur(40px) brightness(0.4) saturate(1.2);
+            transform: scale(1.2); 
         }
         
-        .camera-main { 
+        /* Full blur layer - menutupi semua */
+        .full-blur-layer {
             position: absolute;
-            top: 50%; left: 50%; 
-            transform: translate(-50%, -50%); 
-            max-width: 60%; max-height: 70%; 
-            z-index: 2; 
-            filter: blur(5px);
-            opacity: 0.85;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            backdrop-filter: blur(25px) brightness(0.5);
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
+        .camera-main { 
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 2;
+            filter: blur(30px) brightness(0.5);
+        }
+
+        /* Blur Overlay Content - Mirip gambar referensi */
+        .blur-overlay-content {
+            text-align: center;
+            color: #fff;
+            z-index: 10;
+            padding: 40px;
+            max-width: 400px;
+        }
+
+        .eye-icon {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 25px;
+            position: relative;
+        }
+
+        .eye-icon svg {
+            width: 100%;
+            height: 100%;
+            stroke: #fff;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .blur-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+            opacity: 0.95;
+        }
+
+        .blur-subtitle {
+            font-size: 14px;
+            opacity: 0.7;
+            margin-bottom: 25px;
+            font-weight: 400;
+            line-height: 1.5;
+        }
+
+        .show-btn {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            padding: 14px 40px;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .show-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.05);
+        }
+
+        /* Live Badge - Pojok Kiri Atas */
+        .live-badge-custom {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 0, 0, 0.9);
+            padding: 8px 16px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 13px;
+            letter-spacing: 1px;
+            z-index: 20;
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.4);
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        /* UI Overlay untuk mode non-blur */
         .ui-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 10; pointer-events: none;
-            font-family: 'Share Tech Mono', monospace; 
-            color: rgba(255,255,255,0.85);
-            text-shadow: 0 0 3px rgba(0,0,0,0.5);
-            filter: blur(1px);
-            opacity: 0.9;
+            font-family: 'Inter', monospace; 
+            color: rgba(255,255,255,0.9);
+            display: none;
         }
         
-        .corner { position: absolute; width: 40px; height: 40px; border: 2px solid rgba(255,255,255,0.7); }
+        .ui-overlay.active {
+            display: block;
+        }
+
+        .corner { position: absolute; width: 40px; height: 40px; border: 2px solid rgba(255,255,255,0.6); }
         .corner-tl { top: 20px; left: 20px; border-right: none; border-bottom: none; }
         .corner-tr { top: 20px; right: 20px; border-left: none; border-bottom: none; }
         .corner-bl { bottom: 20px; left: 20px; border-right: none; border-top: none; }
@@ -162,60 +298,6 @@
         .menu-line { width: 20px; height: 2px; background: rgba(255,255,255,0.7); }
         .camera-settings { text-align: right; font-size: 14px; line-height: 1.4; }
 
-        /* IMPROVED: Member Login Overlay - Lebih Full & Blur Kuat */
-        .member-overlay {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 320px;
-            height: 220px;
-            background: rgba(30, 30, 30, 0.75);
-            backdrop-filter: blur(40px) saturate(180%);
-            -webkit-backdrop-filter: blur(40px) saturate(180%);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 25;
-            box-shadow: 
-                0 8px 32px rgba(0, 0, 0, 0.6),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
-            pointer-events: none;
-            padding: 30px;
-        }
-        .member-overlay.active { display: flex; }
-        .member-icon {
-            width: 60px; height: 60px;
-            background: rgba(255,255,255,0.12);
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            margin-bottom: 16px;
-            font-size: 28px;
-            border: 2px solid rgba(255,255,255,0.5);
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-        .member-text {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-size: 24px;
-            font-weight: 800;
-            letter-spacing: 3px;
-            color: #fff;
-            text-transform: uppercase;
-            margin-bottom: 6px;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
-        }
-        .member-subtext {
-            font-size: 12px;
-            color: rgba(255,255,255,0.85);
-            letter-spacing: 2px;
-            font-weight: 600;
-            text-transform: uppercase;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.6);
-        }
-
         /* Facebook Live Mode Styles */
         .fb-live-indicator {
             position: absolute;
@@ -225,7 +307,6 @@
             background: rgba(24, 119, 242, 0.95);
             padding: 6px 14px;
             border-radius: 6px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 12px;
             font-weight: 700;
             display: none;
@@ -274,26 +355,27 @@
             border: 1px solid rgba(255,255,255,0.1);
         }
         .fb-viewers.active { display: flex; }
-        .eye-icon { font-size: 10px; }
+        .eye-icon-small { font-size: 10px; }
 
         .result-box {
-            margin-top: 20px; padding: 20px;
+            margin-top: 20px; padding: 25px;
             background: rgba(0,0,0,0.4);
-            border-radius: 10px;
-            border: 2px solid #2ecc71;
+            border-radius: 16px;
+            border: 1px solid rgba(46, 204, 113, 0.5);
             display: none;
+            backdrop-filter: blur(20px);
         }
         .result-box.show { display: block; animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .link-display {
             background: rgba(0,0,0,0.6);
             padding: 15px;
-            border-radius: 6px;
+            border-radius: 10px;
             margin: 10px 0;
-            font-family: 'Share Tech Mono', monospace;
+            font-family: 'Inter', monospace;
             word-break: break-all;
-            border: 1px solid #3498db;
+            border: 1px solid rgba(52, 152, 219, 0.5);
             color: #85c1e9;
             font-size: 0.85em;
         }
@@ -304,19 +386,41 @@
             display: none;
             justify-content: center; align-items: center; flex-direction: column;
             z-index: 1000;
+            backdrop-filter: blur(10px);
         }
-        .spinner { width: 50px; height: 50px; border: 3px solid rgba(255,255,255,0.3); border-top-color: #2ecc71; border-radius: 50%; animation: spin 1s linear infinite; }
+        .spinner { 
+            width: 50px; height: 50px; 
+            border: 3px solid rgba(255,255,255,0.1); 
+            border-top-color: #38ef7d; 
+            border-radius: 50%; 
+            animation: spin 1s linear infinite; 
+        }
         @keyframes spin { to { transform: rotate(360deg); } }
         
-        .status { margin-top: 10px; padding: 10px; border-radius: 6px; font-size: 0.85em; display: none; }
-        .status.error { background: rgba(231, 76, 60, 0.3); border: 1px solid #e74c3c; display: block; color: #fff; }
-        .status.success { background: rgba(46, 204, 113, 0.3); border: 1px solid #2ecc71; display: block; color: #fff; }
+        .status { margin-top: 10px; padding: 12px; border-radius: 10px; font-size: 0.85em; display: none; }
+        .status.error { background: rgba(231, 76, 60, 0.2); border: 1px solid rgba(231, 76, 60, 0.5); display: block; color: #fff; }
+        .status.success { background: rgba(46, 204, 113, 0.2); border: 1px solid rgba(46, 204, 113, 0.5); display: block; color: #fff; }
 
-        .copy-btn { background: #3498db; color: white; border: none; padding: 10px 24px; border-radius: 6px; cursor: pointer; font-size: 0.9em; margin-top: 10px; font-weight: 600; }
+        .copy-btn { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            border: none; 
+            padding: 12px 28px; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-size: 0.9em; 
+            margin-top: 10px; 
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
         
         .url-type { font-size: 0.75em; color: #95a5a6; margin-top: 5px; font-style: italic; }
         
-        .helper-text { font-size: 0.75em; color: rgba(255,255,255,0.6); margin-top: 5px; font-style: italic; }
+        .helper-text { font-size: 0.75em; color: rgba(255,255,255,0.5); margin-top: 5px; font-style: italic; }
 
         .checkbox-group { margin-top: 8px; }
         .checkbox-group label { 
@@ -328,17 +432,61 @@
         
         .divider {
             height: 1px;
-            background: rgba(255,255,255,0.2);
-            margin: 15px 0;
+            background: rgba(255,255,255,0.1);
+            margin: 20px 0;
+        }
+
+        h2 { 
+            font-size: 1.3em; 
+            margin-bottom: 20px; 
+            color: #fff;
+            font-weight: 700;
+        }
+
+        /* Toggle Switch Style */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .toggle-switch.active {
+            background: #38ef7d;
+        }
+        
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: #fff;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s;
+        }
+        
+        .toggle-switch.active::after {
+            left: 26px;
         }
     </style>
-<base target="_blank">
 </head>
 <body>
 
 <div class="loading" id="loading">
     <div class="spinner"></div>
-    <p style="margin-top: 20px; color: #2ecc71; font-size: 1.1em;">Uploading to Cloud...</p>
+    <p style="margin-top: 20px; color: #38ef7d; font-size: 1.1em;">Uploading to Cloud...</p>
 </div>
 
 <div class="container">
@@ -350,32 +498,28 @@
 
     <div class="main-grid">
         <div class="controls">
-            <h2 style="margin-bottom: 20px; color: #85c1e9;">⚙️ Settings</h2>
+            <h2>⚙️ Settings</h2>
             
             <div class="control-group">
                 <label>📁 Upload Gambar</label>
                 <input type="file" id="imageInput" accept="image/*">
                 <p class="helper-text">Pilih gambar untuk preview/editor</p>
             </div>
-            <div class="control-group">
-                <label>⏱️ Timer</label>
-                <input type="text" id="timerText" value="00:00:10">
-            </div>
-            <div class="control-group">
-                <label>📸 Camera Settings</label>
-                <input type="text" id="cameraSettings" value="F3.5 ISO100">
-            </div>
-            <div class="control-group">
-                <label>🔋 Battery (%)</label>
-                <input type="number" id="batteryLevel" value="70" min="0" max="100">
-            </div>
+
+            <div class="divider"></div>
 
             <div class="control-group">
                 <label>🎭 Overlay Options</label>
                 <div class="checkbox-group">
                     <label>
-                        <input type="checkbox" id="memberOverlayToggle">
-                        Member Login (VIEW FREE)
+                        <input type="checkbox" id="blurOverlayToggle" checked>
+                        Full Blur Overlay (Mirip Gambar)
+                    </label>
+                </div>
+                <div class="checkbox-group">
+                    <label>
+                        <input type="checkbox" id="cameraUIToggle">
+                        Camera UI Mode (REC, Timer, etc)
                     </label>
                 </div>
                 <div class="checkbox-group">
@@ -386,8 +530,23 @@
                 </div>
             </div>
 
-            <button class="btn btn-primary" onclick="updatePreview()">🔄 Update Preview</button>
-            
+            <div id="cameraSettingsGroup" style="display: none;">
+                <div class="divider"></div>
+                <div class="control-group">
+                    <label>⏱️ Timer</label>
+                    <input type="text" id="timerText" value="00:00:10">
+                </div>
+                <div class="control-group">
+                    <label>📸 Camera Settings</label>
+                    <input type="text" id="cameraSettings" value="F3.5 ISO100">
+                </div>
+                <div class="control-group">
+                    <label>🔋 Battery (%)</label>
+                    <input type="number" id="batteryLevel" value="70" min="0" max="100">
+                </div>
+                <button class="btn btn-primary" onclick="updatePreview()">🔄 Update Preview</button>
+            </div>
+
             <div class="divider"></div>
             
             <button class="btn btn-success" onclick="uploadToCloudinary()" id="uploadBtn">
@@ -396,7 +555,7 @@
             <button class="btn btn-warning" onclick="uploadOriginalToCloudinary()" id="uploadOriginalBtn">
                 📤 Upload Original (No Edit)
             </button>
-            <button class="btn btn-primary" onclick="downloadImage()" id="downloadBtn" style="background: #9b59b6;">
+            <button class="btn btn-primary" onclick="downloadImage()" id="downloadBtn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                 💾 Download Image
             </button>
 
@@ -405,9 +564,35 @@
 
         <div>
             <div class="camera-container" id="cameraContainer">
+                <!-- Background Layer -->
                 <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='450'%3E%3Crect width='800' height='450' fill='%23222'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23444' font-size='20'%3EUpload Gambar%3C/text%3E%3C/svg%3E" class="camera-bg" id="bgImage">
-                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect width='400' height='300' fill='%23333'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23555' font-size='16'%3EPreview%3C/text%3E%3C/svg%3E" class="camera-main" id="mainImage">
                 
+                <!-- Main Image (Full Blur) -->
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect width='400' height='300' fill='%23333'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23555' font-size='16'%3EPreview%3C/text%3E%3C/svg%3E" class="camera-main" id="mainImage">
+
+                <!-- Full Blur Overlay dengan Tombol Show -->
+                <div class="full-blur-layer" id="blurOverlay">
+                    <div class="blur-overlay-content">
+                        <!-- Eye Icon dengan Slash -->
+                        <div class="eye-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                <line x1="1" y1="1" x2="23" y2="23"></line>
+                            </svg>
+                        </div>
+                        <div class="blur-title">Click The Show Button</div>
+                        <div class="blur-subtitle">If You Want To See The HD Version Of This Post</div>
+                        <button class="show-btn" onclick="toggleBlur()">Show</button>
+                    </div>
+                </div>
+
+                <!-- Live Badge (Pojok Kiri Atas) -->
+                <div class="live-badge-custom" id="liveBadge">
+                    <div class="live-dot"></div>
+                    <span>LIVE</span>
+                </div>
+
+                <!-- Camera UI Overlay -->
                 <div class="ui-overlay" id="uiOverlay">
                     <div class="corner corner-tl"></div>
                     <div class="corner corner-tr"></div>
@@ -415,19 +600,13 @@
                     <div class="corner corner-br"></div>
                     <div class="focus-frame"></div>
                     
-                    <div class="member-overlay" id="memberOverlay">
-                        <div class="member-icon">🚫</div>
-                        <div class="member-text">VIEW FREE</div>
-                        <div class="member-subtext">Member Login</div>
-                    </div>
-
                     <div class="fb-live-indicator" id="fbLiveIndicator">
                         <div class="fb-pulse"></div>
                         <div class="fb-logo">f</div>
                         <span>LIVE ON FACEBOOK</span>
                     </div>
                     <div class="fb-viewers" id="fbViewers">
-                        <span class="eye-icon">👁</span>
+                        <span class="eye-icon-small">👁</span>
                         <span id="viewerCount">1.2K watching</span>
                     </div>
                     
@@ -464,7 +643,7 @@
             </div>
 
             <div class="result-box" id="resultBox">
-                <h3 style="color: #2ecc71; margin-bottom: 10px;">✅ Cloud Direct Link:</h3>
+                <h3 style="color: #38ef7d; margin-bottom: 10px; font-size: 1.1em;">✅ Cloud Direct Link:</h3>
                 <div class="link-display" id="imageLink">Menunggu...</div>
                 <div class="url-type" id="urlType">res.cloudinary.com</div>
                 <button class="copy-btn" onclick="copyLink()">📋 Copy Link</button>
@@ -491,12 +670,13 @@
     let currentImageSrc = '';
     let originalImageObj = null;
     let viewerInterval = null;
-    let currentFile = null; // Store file untuk upload original
+    let currentFile = null;
+    let isBlurActive = true;
 
     document.getElementById('imageInput').addEventListener('change', function(e) {
         const file = e.target.files[0];
         if(file) {
-            currentFile = file; // Simpan file asli
+            currentFile = file;
             
             const reader = new FileReader();
             reader.onload = function(event) {
@@ -513,15 +693,37 @@
         }
     });
 
-    document.getElementById('memberOverlayToggle').addEventListener('change', function(e) {
-        const overlay = document.getElementById('memberOverlay');
+    // Toggle Blur Overlay
+    document.getElementById('blurOverlayToggle').addEventListener('change', function(e) {
+        const overlay = document.getElementById('blurOverlay');
+        const liveBadge = document.getElementById('liveBadge');
+        
         if(e.target.checked) {
-            overlay.classList.add('active');
+            overlay.style.display = 'flex';
+            liveBadge.style.display = 'flex';
+            isBlurActive = true;
         } else {
-            overlay.classList.remove('active');
+            overlay.style.display = 'none';
+            liveBadge.style.display = 'none';
+            isBlurActive = false;
         }
     });
 
+    // Toggle Camera UI
+    document.getElementById('cameraUIToggle').addEventListener('change', function(e) {
+        const uiOverlay = document.getElementById('uiOverlay');
+        const settingsGroup = document.getElementById('cameraSettingsGroup');
+        
+        if(e.target.checked) {
+            uiOverlay.classList.add('active');
+            settingsGroup.style.display = 'block';
+        } else {
+            uiOverlay.classList.remove('active');
+            settingsGroup.style.display = 'none';
+        }
+    });
+
+    // Toggle Facebook Live
     document.getElementById('facebookLiveToggle').addEventListener('change', function(e) {
         const indicator = document.getElementById('fbLiveIndicator');
         const viewers = document.getElementById('fbViewers');
@@ -538,6 +740,23 @@
             updatePreview();
         }
     });
+
+    function toggleBlur() {
+        const overlay = document.getElementById('blurOverlay');
+        const btn = event.target;
+        
+        if(isBlurActive) {
+            overlay.style.opacity = '0';
+            overlay.style.pointerEvents = 'none';
+            btn.textContent = 'Hide';
+            isBlurActive = false;
+        } else {
+            overlay.style.opacity = '1';
+            overlay.style.pointerEvents = 'auto';
+            btn.textContent = 'Show';
+            isBlurActive = true;
+        }
+    }
 
     function startViewerSimulation() {
         let count = 1200;
@@ -612,33 +831,55 @@
             ctx.fillStyle = '#000000';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
+            // Draw full blur background
             ctx.save();
-            ctx.filter = 'blur(30px) brightness(0.5)';
+            ctx.filter = 'blur(40px) brightness(0.4) saturate(1.2)';
             const imgAspect = originalImageObj.width / originalImageObj.height;
             if(imgAspect > (canvas.width/canvas.height)) {
-                const drawHeight = canvas.height * 1.2;
+                const drawHeight = canvas.height * 1.3;
                 const drawWidth = drawHeight * imgAspect;
                 ctx.drawImage(originalImageObj, (canvas.width - drawWidth)/2, (canvas.height - drawHeight)/2, drawWidth, drawHeight);
             } else {
-                const drawWidth = canvas.width * 1.2;
+                const drawWidth = canvas.width * 1.3;
                 const drawHeight = drawWidth / imgAspect;
                 ctx.drawImage(originalImageObj, (canvas.width - drawWidth)/2, (canvas.height - drawHeight)/2, drawWidth, drawHeight);
             }
             ctx.restore();
             
+            // Draw main image with heavy blur
             ctx.save();
-            ctx.filter = 'blur(5px)';
-            const mainHeight = canvas.height * 0.7;
-            const mainWidth = mainHeight * imgAspect;
-            ctx.drawImage(originalImageObj, (canvas.width - mainWidth)/2, (canvas.height - mainHeight)/2, mainWidth, mainHeight);
+            ctx.filter = 'blur(30px) brightness(0.5)';
+            ctx.drawImage(originalImageObj, 0, 0, canvas.width, canvas.height);
             ctx.restore();
             
-            const uiElement = document.getElementById('uiOverlay');
-            const uiCanvas = await html2canvas(uiElement, { backgroundColor: null, scale: 1 });
-            ctx.save();
-            ctx.filter = 'blur(1px)';
-            ctx.drawImage(uiCanvas, 0, 0, canvas.width, canvas.height);
-            ctx.restore();
+            // Draw UI elements if enabled
+            const blurOverlay = document.getElementById('blurOverlay');
+            const uiOverlay = document.getElementById('uiOverlay');
+            const liveBadge = document.getElementById('liveBadge');
+            
+            // Simpan state asli
+            const originalBlurDisplay = blurOverlay.style.display;
+            const originalUIDisplay = uiOverlay.classList.contains('active');
+            const originalLiveDisplay = liveBadge.style.display;
+            
+            // Pastikan elemen terlihat untuk capture
+            blurOverlay.style.display = 'flex';
+            blurOverlay.style.opacity = '1';
+            
+            // Capture seluruh container
+            const containerElement = document.getElementById('cameraContainer');
+            const containerCanvas = await html2canvas(containerElement, { 
+                backgroundColor: null, 
+                scale: 2,
+                useCORS: true,
+                allowTaint: true
+            });
+            
+            ctx.drawImage(containerCanvas, 0, 0, canvas.width, canvas.height);
+            
+            // Restore state
+            blurOverlay.style.display = originalBlurDisplay;
+            if(!isBlurActive) blurOverlay.style.opacity = '0';
             
             const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.95));
             
@@ -664,8 +905,8 @@
             }
 
             document.getElementById('imageLink').textContent = imageUrl;
-            document.getElementById('urlType').textContent = 'res.cloudinary.com (With Effects)';
-            document.getElementById('uploadInfo').textContent = 'Gambar dengan efek blur/editor siap digunakan.';
+            document.getElementById('urlType').textContent = 'res.cloudinary.com (Full Blur Effect)';
+            document.getElementById('uploadInfo').textContent = 'Gambar dengan efek full blur siap digunakan.';
             document.getElementById('resultBox').classList.add('show');
             document.getElementById('resultBox').scrollIntoView({behavior: 'smooth'});
             
@@ -703,7 +944,6 @@
         document.getElementById('uploadOriginalBtn').disabled = true;
 
         try {
-            // Langsung upload file asli tanpa modifikasi
             const formData = new FormData();
             formData.append('file', currentFile, currentFile.name);
             formData.append('upload_preset', UPLOAD_PRESET);
@@ -720,7 +960,6 @@
             }
 
             const imageUrl = data.secure_url;
-            const originalUrl = data.url;
             
             if(!imageUrl) {
                 throw new Error('URL tidak valid dari Cloudinary');
@@ -732,14 +971,13 @@
                 <strong>Original File:</strong> ${data.original_filename}<br>
                 <strong>Size:</strong> ${(data.bytes / 1024).toFixed(2)} KB<br>
                 <strong>Dimensions:</strong> ${data.width} x ${data.height}<br>
-                <span style="color: #2ecc71;">Gambar diupload tanpa modifikasi (asli)</span>
+                <span style="color: #38ef7d;">Gambar diupload tanpa modifikasi (asli)</span>
             `;
             document.getElementById('resultBox').classList.add('show');
             document.getElementById('resultBox').scrollIntoView({behavior: 'smooth'});
             
             showStatus('✅ Upload original berhasil! Tidak ada editing.', 'success');
             
-            // Auto copy
             navigator.clipboard.writeText(imageUrl);
             
         } catch(error) {
@@ -773,36 +1011,38 @@
             ctx.fillStyle = '#000000';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
+            // Full blur background
             ctx.save();
-            ctx.filter = 'blur(30px) brightness(0.5)';
+            ctx.filter = 'blur(40px) brightness(0.4) saturate(1.2)';
             const imgAspect = originalImageObj.width / originalImageObj.height;
             if(imgAspect > (canvas.width/canvas.height)) {
-                const drawHeight = canvas.height * 1.2;
+                const drawHeight = canvas.height * 1.3;
                 const drawWidth = drawHeight * imgAspect;
                 ctx.drawImage(originalImageObj, (canvas.width - drawWidth)/2, (canvas.height - drawHeight)/2, drawWidth, drawHeight);
             } else {
-                const drawWidth = canvas.width * 1.2;
+                const drawWidth = canvas.width * 1.3;
                 const drawHeight = drawWidth / imgAspect;
                 ctx.drawImage(originalImageObj, (canvas.width - drawWidth)/2, (canvas.height - drawHeight)/2, drawWidth, drawHeight);
             }
             ctx.restore();
             
+            // Full blur main
             ctx.save();
-            ctx.filter = 'blur(5px)';
-            const mainHeight = canvas.height * 0.7;
-            const mainWidth = mainHeight * imgAspect;
-            ctx.drawImage(originalImageObj, (canvas.width - mainWidth)/2, (canvas.height - mainHeight)/2, mainWidth, mainHeight);
+            ctx.filter = 'blur(30px) brightness(0.5)';
+            ctx.drawImage(originalImageObj, 0, 0, canvas.width, canvas.height);
             ctx.restore();
             
-            const uiElement = document.getElementById('uiOverlay');
-            const uiCanvas = await html2canvas(uiElement, { backgroundColor: null, scale: 1 });
-            ctx.save();
-            ctx.filter = 'blur(1px)';
-            ctx.drawImage(uiCanvas, 0, 0, canvas.width, canvas.height);
-            ctx.restore();
+            // Capture UI
+            const containerElement = document.getElementById('cameraContainer');
+            const containerCanvas = await html2canvas(containerElement, { 
+                backgroundColor: null, 
+                scale: 2 
+            });
+            
+            ctx.drawImage(containerCanvas, 0, 0, canvas.width, canvas.height);
             
             const link = document.createElement('a');
-            link.download = 'soft-blur-camera-' + Date.now() + '.jpg';
+            link.download = 'full-blur-camera-' + Date.now() + '.jpg';
             link.href = canvas.toDataURL('image/jpeg', 0.95);
             link.click();
             
@@ -838,4 +1078,4 @@
 </script>
 
 </body>
-    </html>
+</html>
